@@ -22,6 +22,7 @@ import AdminUsers from './pages/admin/AdminUsers';
 import EditProduct from './pages/admin/EditProduct';
 import CreateProduct from './pages/admin/CreateProduct';
 import OrderList from './pages/OrderList';
+import Success from './pages/Success';
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
@@ -112,6 +113,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+<Route path="/success" element={<Success />} />
 
         <Route path="*" element={<h1 className="text-center mt-5">404 - Page Not Found</h1>} />
 

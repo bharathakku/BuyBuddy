@@ -4,8 +4,7 @@ import { Link } from 'react-router-dom';
 
 import Carousel from '../components/Carousel';
 import Navbar from '../components/Navbar';
-import { getFullImageUrl } from '../utils/imageURL';
-const fallbackImage = 'https://via.placeholder.com/500x500?text=No+Image';
+import ProductCard from '../components/ProductCard';
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -38,41 +37,32 @@ function Home() {
   return (
     <>
       <Navbar onSearch={handleSearch} />
+
       <div className="container mt-5 pt-4">
         <Carousel />
-        <h2 className="text-center mb-4">Our Products</h2>
+
+        <div className="text-center my-5">
+          <h2 className="fw-bold display-6 text-dark">
+            Explore Our <span className="text-primary">Premium</span> Collection
+          </h2>
+          <p className="text-muted fs-5">
+            Performance. Elegance. Precision — handpicked just for you.
+          </p>
+        </div>
 
         <div className="row">
           {filtered.map((product) => (
             <div className="col-sm-12 col-md-6 col-lg-4 mb-4" key={product._id}>
-              <div className="card h-100 shadow-sm border-0">
-                <img
-                  src={product.image ? getFullImageUrl(product.image) : fallbackImage} // Make sure to use the getFullImageUrl function
-                  alt={product.name}
-                  className="card-img-top"
-                  style={{ height: '280px', objectFit: 'cover' }}
-                  loading="lazy"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = fallbackImage;
-                  }}
-                />
-
-                <div className="card-body d-flex flex-column">
-                  <h5 className="card-title">{product.name}</h5>
-                  <p className="card-text fw-semibold">${product.price}</p>
-                  <Link
-                    to={`/product/${product._id}`}
-                    className="btn btn-dark mt-auto"
-                    style={{ borderRadius: '6px' }}
-                  >
-                    View Details
-                  </Link>
-                </div>
-              </div>
+              <ProductCard product={product} />
             </div>
           ))}
         </div>
+
+        {filtered.length === 0 && (
+          <div className="text-center text-muted fs-4 my-5">
+            No products found.
+          </div>
+        )}
       </div>
     </>
   );

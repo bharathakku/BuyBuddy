@@ -42,48 +42,63 @@ function ProductDetails() {
     navigate('/cart');
   };
 
-  if (!product) return <div className="container mt-5">Loading...</div>;
+  if (!product)
+    return <div className="container mt-5 text-light fs-4">Loading...</div>;
 
   return (
-    <div className="container mt-5 pt-4">
-      <div className="row align-items-center">
-        <div className="col-md-6 mb-4">
-          <img
-            src={imageSrc}
-            alt={product.name}
-            className="img-fluid rounded shadow-sm"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = fallbackImage;
-            }}
-            loading="lazy"
-          />
-
-        </div>
+    <div className="container mt-5 text-light">
+      <div className="row g-5 align-items-center">
+        {/* Image */}
         <div className="col-md-6">
-          <h2 className="fw-bold">{product.name}</h2>
-          <p className="text-muted">{product.description}</p>
-          <h4 className="text-success mb-3">${product.price}</h4>
-
-          <div className="mb-3 d-flex align-items-center">
-            <label htmlFor="quantity" className="me-2">Quantity:</label>
-            <input
-              type="number"
-              id="quantity"
-              className="form-control"
-              style={{ width: '80px' }}
-              min="1"
-              max={product.countInStock || 10}
-              value={quantity}
-              onChange={(e) =>
-                setQuantity(Math.max(1, Math.min(Number(e.target.value), product.countInStock || 10)))
-              }
+          <div className="glass-card p-3">
+            <img
+              src={imageSrc}
+              alt={product.name}
+              className="img-fluid rounded"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = fallbackImage;
+              }}
+              loading="lazy"
             />
           </div>
+        </div>
 
-          <button className="btn btn-dark w-100" onClick={addToCartHandler}>
-            <i className="fas fa-cart-plus me-2"></i> Add to Cart
-          </button>
+        {/* Details */}
+        <div className="col-md-6">
+          <div className="glass-card p-4">
+            <h2 className="fw-bold mb-2 text-primary">{product.name}</h2>
+            <p className="text-muted">{product.description}</p>
+            <h4 className="text-success mb-4">${product.price}</h4>
+
+            <div className="mb-3 d-flex align-items-center">
+              <label htmlFor="quantity" className="me-3 fw-semibold">Qty:</label>
+              <input
+                type="number"
+                id="quantity"
+                className="form-control bg-dark text-light border-secondary"
+                style={{ width: '80px' }}
+                min="1"
+                max={product.countInStock || 10}
+                value={quantity}
+                onChange={(e) =>
+                  setQuantity(Math.max(1, Math.min(Number(e.target.value), product.countInStock || 10)))
+                }
+              />
+            </div>
+
+            <button
+              className="btn btn-primary w-100 fw-semibold shadow-sm"
+              onClick={addToCartHandler}
+              disabled={product.countInStock === 0}
+            >
+              <i className="fas fa-cart-plus me-2"></i> Add to Cart
+            </button>
+
+            {product.countInStock === 0 && (
+              <div className="mt-3 text-danger">Out of stock</div>
+            )}
+          </div>
         </div>
       </div>
     </div>

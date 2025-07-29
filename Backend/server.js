@@ -17,7 +17,10 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: 'https://buy-buddy-nine.vercel.app', 
+  origin: [
+  'http://localhost:5173',
+  'https://buy-buddy-nine.vercel.app'
+], 
   credentials: true, 
 }));
 app.use(helmet());
@@ -28,13 +31,14 @@ import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
 
 // Use Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/admin', adminRoutes); // Admin routes
-
+app.use('/api/admin', adminRoutes); 
+app.use('/api/payment', paymentRoutes);
 // Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);

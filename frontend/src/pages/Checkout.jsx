@@ -2,11 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import API from '../services/apiService';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
 
 function Checkout() {
   const navigate = useNavigate();
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
   const savedAddress = JSON.parse(localStorage.getItem('shippingAddress'));
+  const userInfo = JSON.parse(localStorage.getItem('userInfo')); // needed for email
 
   const [editMode, setEditMode] = useState(false);
   const [address, setAddress] = useState(savedAddress?.address || '');
@@ -24,35 +29,56 @@ function Checkout() {
   const itemsPrice = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
   const shippingPrice = itemsPrice > 100 ? 0 : 10;
   const totalPrice = itemsPrice + shippingPrice;
+  
+const placeOrderHandler = async () => {
+  const updatedAddress = { address, city, postalCode, country };
 
-  const placeOrderHandler = async () => {
-    const updatedAddress = { address, city, postalCode, country };
-    try {
-      const orderItems = cart.map((item) => ({
-        product: item._id,
-        name: item.name,
-        qty: item.quantity || 1,
-        price: item.price,
-        image: item.image || '',
-      }));
+  try {
+    const orderItems = cart.map((item) => ({
+      product: item._id,
+      name: item.name,
+      qty: item.quantity || 1,
+      price: item.price,
+      image: item.image || '',
+    }));
 
-      const { data } = await API.post('/orders', {
+    // ✅ Add token to headers
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo?.token}`,
+      },
+    };
+
+    const { data: order } = await API.post(
+      '/orders',
+      {
         orderItems,
         shippingAddress: updatedAddress,
-        paymentMethod: "Cash on Delivery",
+        paymentMethod: 'Stripe',
         itemsPrice,
         shippingPrice,
         totalPrice,
-      });
+      },
+      config
+    );
 
-      localStorage.removeItem('cart');
-      toast.success('Order placed successfully!');
-      navigate(`/order/${data._id}`);
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to place order.');
-    }
-  };
+    const { data: session } = await API.post(
+      '/payment/create-checkout-session',
+      {
+        orderId: order._id,
+        items: orderItems,
+        email: userInfo?.email || '',
+      },
+      config
+    );
+
+    const stripe = await stripePromise;
+    await stripe.redirectToCheckout({ sessionId: session.id });
+  } catch (error) {
+    console.error(error);
+    toast.error('Failed to start Stripe payment.');
+  }
+};
 
   const saveEditedAddress = () => {
     const updated = { address, city, postalCode, country };
@@ -148,7 +174,7 @@ function Checkout() {
             <p className="mb-1">Shipping: <strong>${shippingPrice.toFixed(2)}</strong></p>
             <h5 className="mb-3">Total: <strong>${totalPrice.toFixed(2)}</strong></h5>
             <button className="btn btn-dark w-100" onClick={placeOrderHandler}>
-              Confirm & Place Order
+              Pay with Stripe
             </button>
           </div>
         </div>

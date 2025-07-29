@@ -70,7 +70,8 @@ function OrderList() {
                   <p className="card-text mb-1"><strong>Total:</strong> {formatCurrency(order.totalPrice)}</p>
                   <p className="card-text mb-1"><strong>Date:</strong> {new Date(order.createdAt).toLocaleDateString()}</p>
                   <p className="card-text mb-2"><strong>Status:</strong> {getStatusBadge(order.status)}</p>
-                  <p className="card-text"><strong>Payment:</strong> Cash on Delivery</p>
+                 <p className="card-text"><strong>Payment:</strong> {order.paymentMethod}</p>
+
                 </div>
               </div>
             </div>
